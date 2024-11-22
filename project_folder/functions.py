@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import os
 import seaborn as sns
 import re
-
+import io
 
 def menu_setting():
     print(
@@ -274,6 +274,76 @@ def get_financial_statements(company_name, choice):
         return "<p>该公司没有可用的财务报表数据。</p>"
 
 
+def plot_income_data_web(company_name):
+    # 下载公司信息
+    company = yf.Ticker(company_name)
+
+    # 获取利润表
+    income_statement = company.financials
+
+    # 获取 Operating Income 和 Net Income
+    try:
+        operating_income = income_statement.loc['Operating Income']
+        net_income = income_statement.loc['Net Income']
+    except KeyError:
+        return None  # 如果数据不完整，返回 None
+
+    # 转换为 DataFrame 以便计算同比增长率
+    pd_operating_income = pd.DataFrame({"Operating Income": operating_income}).iloc[::-1]
+    pd_net_income = pd.DataFrame({"Net Income": net_income}).iloc[::-1]
+
+    # 计算同比增长率
+    operating_income_yoy = pd_operating_income.pct_change() * 100
+    net_income_yoy = pd_net_income.pct_change() * 100
+
+    # 合并数据
+    net_combined = pd.concat([pd_net_income, net_income_yoy.add_suffix('_YoY')], axis=1)
+    operating_combined = pd.concat([pd_operating_income, operating_income_yoy.add_suffix('_YoY')], axis=1)
+
+    net_combined.index = pd.to_datetime(net_combined.index)
+    operating_combined.index = pd.to_datetime(operating_combined.index)
+
+    # 创建图表
+    fig, axes = plt.subplots(2, 1, figsize=(10, 12))
+
+    # 图表 1：Operating Income 和同比增长率
+    ax1 = axes[0]
+    ax1.bar(operating_combined.index, operating_combined['Operating Income'], color='b', width=50)
+    ax1.set_xlabel('Year')
+    ax1.set_ylabel('Operating Income (USD)', color='b')
+    ax1.tick_params(axis='y', labelcolor='b')
+    ax1.set_title('Operating Income and YoY Growth')
+    ax2 = ax1.twinx()
+    ax2.plot(operating_combined.index, operating_combined['Operating Income_YoY'], color='g', marker='o',
+             label='Operating Income YoY')
+    ax2.set_ylabel('YoY Growth (%)', color='g')
+    ax2.tick_params(axis='y', labelcolor='g')
+    ax2.legend(loc='upper left')
+
+    # 图表 2：Net Income 和同比增长率
+    ax3 = axes[1]
+    ax3.bar(net_combined.index, net_combined['Net Income'], color='r', width=50)
+    ax3.set_xlabel('Year')
+    ax3.set_ylabel('Net Income (USD)', color='r')
+    ax3.tick_params(axis='y', labelcolor='r')
+    ax3.set_title('Net Income and YoY Growth')
+    ax4 = ax3.twinx()
+    ax4.plot(net_combined.index, net_combined['Net Income_YoY'], color='purple', marker='o', label='Net Income YoY')
+    ax4.set_ylabel('YoY Growth (%)', color='purple')
+    ax4.tick_params(axis='y', labelcolor='purple')
+    ax4.legend(loc='upper left')
+
+    plt.tight_layout()
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    plt.close()  # 关闭图形
+    buffer.seek(0)  # 将指针移动到图像数据的开头
+    return buffer
+
+
+
+
 def plot_income_data(company_name):
     # 下载公司信息
     company = yf.Ticker(company_name)
@@ -437,7 +507,7 @@ def get_profitability_and_expense_ratios(company_name):
     plt.show()
 
 
-
+#visualization的功能函数
 def part4_mian(company_name):
     choice=int(input("Type 1 for income information\nType 2 for expense information"))
     if choice ==1:

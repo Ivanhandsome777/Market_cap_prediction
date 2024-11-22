@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+    <style>
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table-bordered {
+            border: 1px solid #ddd;
+        }
+        .table th, .table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>The result of {{ company }}</h1>
+
+    {% if result_type == 'simple' %}
+        <table class="table table-bordered">
+            <tr><th>attribute</th><th>value</th></tr>
+            {% for attribute, value in result_data.items() %}
+                <tr><td>{{ attribute }}</td><td>{{ value }}</td></tr>
+            {% endfor %}
+        </table>
+
+    {% elif result_type == 'nested' %}
+        {% for table_title, table_data in result_data.items() %}
+            <h2>{{ table_title }}</h2>
+            <table class="table table-bordered">
+                <tr><th>attribute</th><th>value</th></tr>
+                {% for row in table_data %}
+                    <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td></tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+
+    {% elif result_type == 'html_table' %}
+        {{ result_data | safe }}
+    
+    {% else %}
+        <p>Error!</p>
+    {% endif %}
+
+    <a href="/en">Return</a>
+</body>
+</html>
