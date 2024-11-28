@@ -8,6 +8,7 @@ This is a information program designed for investors and stock traders. It has 5
 3. get financial reports of selected company
 4. do visualization of income and cost of companies  
 5. predict the market cap of companies and give recommended valuation based on AI models  
+6. show rankings of the selected company among its sector and industry
 
 ## Dependence
 pandas, numpy, joblib, yfinance, matplotlib, os, seaborn  

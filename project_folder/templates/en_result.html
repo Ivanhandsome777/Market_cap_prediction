@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Result</title>
@@ -47,6 +47,9 @@
 
     {% elif result_type == 'html_table' %}
         {{ result_data | safe }}
+        
+    {% elif result_type == 'ranking' %}
+        {{ result_data | safe}}
     
     {% else %}
         <p>Error!</p>

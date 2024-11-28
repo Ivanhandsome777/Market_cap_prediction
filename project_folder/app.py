@@ -6,7 +6,13 @@ import matplotlib.pyplot as plt
 import base64
 from functions import *
 from openai import OpenAI
+matplotlib.use('Agg')  # 使用非交互式后端
+import matplotlib.pyplot as plt
+import base64
 import re
+import pandas as pd
+import yfinance as yf
+
 
 
 
@@ -343,12 +349,43 @@ def company():
             result_type = 'html_table'  # HTML 表格
 
         elif function_num == 4:
-            buffer = plot_income_data_web(company_name)
+
+            visualization_choice = int(request.form['visualization_choice'])
+            buffer = plot_data_web_sns(company_name,visualization_choice)
+            #buffer = plot_income_data_web(company_name)
             img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
 
             # Pass the base64 string to the template
             return render_template('plot.html', image_data=img_base64,company_name=company_name)
         
+        elif function_num == 6:
+            ranking_info = ranking(company_name)
+            ranking_info.columns = ["市值","类别","类别排名","行业","行业排名"]
+            # 英文到中文的字典
+            column_translation = {
+                'marketCap': '市值',
+                'beta': '贝塔系数',
+                'trailingPE': '滚动市盈率',
+                'forwardPE': '预测市盈率',
+                'profitMargins': '利润率',
+                'grossMargins': '毛利率',
+                'operatingMargins': '营业利润率',
+                'debtToEquity': '债务股本比',
+                'currentRatio': '流动比率',
+                'quickRatio': '速动比率',
+                'freeCashflow': '自由现金流',
+                'totalRevenue': '总收入',
+                'netIncomeToCommon': '净收入对普通股的比率',
+                'trailingEps': '滚动每股收益',
+                'forwardEps': '预测每股收益',
+                'dividendYield': '股息收益率',
+                'returnOnAssets': '资产回报率',
+                'returnOnEquity': '股本回报率',
+                'enterpriseValue': '企业价值'
+            }
+            result_type = "ranking"
+            ranking_info.index = [column_translation.get(index, index) for index in ranking_info.index]
+            result_data = ranking_info.to_html(classes="table table-striped", index=True)
 
         else:
             return "无效的功能编号"
@@ -382,11 +419,18 @@ def company_en():
             result_type = 'html_table'  # HTML 表格
 
         elif function_num == 4:
-            buffer = plot_income_data_web(company_name)
+            visualization_choice = int(request.form['visualization_choice'])
+            buffer = plot_data_web_sns(company_name, visualization_choice)
+            # buffer = plot_income_data_web(company_name)
             img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
 
             # Pass the base64 string to the template
-            return render_template('plot.html', image_data=img_base64,company_name=company_name)
+            return render_template('ploten.html', image_data=img_base64, company_name=company_name)
+        
+        elif function_num == 6:
+            ranking_info = ranking(company_name)
+            result_data = ranking_info.to_html(classes="table table-striped", index=True)
+            result_type = "ranking" 
 
         else:
             return "无效的功能编号"

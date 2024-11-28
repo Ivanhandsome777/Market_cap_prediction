@@ -47,7 +47,11 @@
 
     {% elif result_type == 'html_table' %}
         {{ result_data | safe }}
-    
+
+    {% elif result_type == 'ranking' %}
+        {{ result_data | safe}}
+
+
     {% else %}
         <p>无法显示数据。</p>
     {% endif %}
