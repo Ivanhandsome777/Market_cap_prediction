@@ -1006,9 +1006,16 @@ def mannual_data_keyin():
     # df_raw.drop(["Ticker"],axis=1,inplace=True)
     rf_loaded = joblib.load('./random_forest_model_evaluation.joblib')
     y_predict = rf_loaded.predict(df_raw)
-
-    return y_predict
-    
+    if 0<=y_predict<=1e8:
+        return 0
+    elif 1e8< y_predict<=1e9:
+        return 1
+    elif 1e9< y_predict<=3e9:
+        return 2
+    elif 3e9< y_predict<=5e9:
+        return 3
+    elif 5e9< y_predict<=1e10:
+        return 4
 
 
 def menu_function5(company):
