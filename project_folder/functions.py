@@ -1271,3 +1271,74 @@ def chat_with_gpt():
 
         except TimeoutError:
             print("error")
+
+
+
+
+def find_data(Ticker):
+    """
+    这是一个根据用户输入的Ticker，返回该公司对应的数据
+    input:
+        Ticker(str):公司名称
+
+    output:
+        pd.Series:根据Ticker返回对应的行数据
+        str:如果Ticker没有找到则返回提示信息
+
+    """
+    try:
+        df_standardized = pd.read_csv("./data/data_preprocessed.csv", index_col="Ticker")
+        result = df_standardized.loc[Ticker]
+        result = pd.DataFrame(result).T
+        return result
+    except KeyError:
+        return f"Ticker '{Ticker}' not found in the DataFrame."
+    
+
+
+
+def regression_prediction(input_data):
+    """
+    这是一个调用已保存randomforest模型，根据已在数据库中数据（含3年历史市值）来预测精确市值的函数。
+    
+    Input：已经预处理完毕的Xvariables数据；dataframe格式
+    Output：根据提供数据预测的市值结果；array格式
+    
+    
+    """
+    try:
+        model = joblib.load('random_forest_model_evaluation_t-3_stand.joblib')
+        
+        if not isinstance(input_data, pd.DataFrame):
+            raise ValueError("Please enter the data in pandas DataFrame format.")
+        
+        prediction = model.predict(input_data)
+        return prediction
+    except:
+        return f"error"
+
+
+
+
+def predict_inlist(Ticker):
+    """
+    这是一个输入Ticker，如果Ticker在datalist中就返回精确预测值，如果不在datalist中就返回提示信息：Ticker不在datalist中。
+
+    input：
+        Ticker(str):公司名称
+
+    output：
+        如果在list中，返回根据提供数据预测的市值结果；array格式
+        如果不在list中，返回提示信息；str格式
+    """
+    
+    input_data = find_data(Ticker)
+    if not isinstance(input_data, pd.DataFrame):
+        return f"Ticker '{Ticker}' not found in the list."
+    
+    else: 
+        return regression_prediction(input_data)
+    
+
+
+

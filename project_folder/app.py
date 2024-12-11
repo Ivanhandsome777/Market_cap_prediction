@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for
+from Demos.win32ts_logoff_disconnected import session
+from flask import Flask, render_template, request, redirect, url_for,session
 import io
 import matplotlib
 matplotlib.use('Agg')  # 使用非交互式后端
@@ -19,10 +20,91 @@ import yfinance as yf
 
 
 app = Flask(__name__)
+app.secret_key = "txxisveryhandsome"  # 密钥
+tickerList = ['AAL', 'AAP', 'AAPL', 'ABBV', 'ABC', 'ABT', 'ADBE', 'ADI', 'ADM',
+       'ADS', 'ADSK', 'AEE', 'AEP', 'AFL', 'AIG', 'AIV', 'AIZ', 'AJG',
+        'AKAM', 'ALB', 'ALK', 'ALL', 'ALLE', 'ALXN', 'AMAT', 'AME', 'AMG',
+        'AMGN', 'AMP', 'AMT', 'AMZN', 'AN', 'ANTM', 'AON', 'APA', 'APC',
+        'APD', 'APH', 'ARNC', 'ATVI', 'AVB', 'AVGO', 'AVY', 'AWK', 'AXP',
+        'AYI', 'AZO', 'BA', 'BAC', 'BAX', 'BBBY', 'BBT', 'BBY', 'BCR',
+        'BDX', 'BHI', 'BIIB', 'BK', 'BLL', 'BMY', 'BSX', 'BWA', 'BXP', 'C',
+        'CAG', 'CAH', 'CAT', 'CB', 'CBG', 'CCI', 'CCL', 'CELG', 'CERN',
+        'CF', 'CFG', 'CHD', 'CHK', 'CHRW', 'CHTR', 'CI', 'CINF', 'CL',
+        'CLX', 'CMA', 'CME', 'CMG', 'CMI', 'CMS', 'CNC', 'CNP', 'COF',
+        'COG', 'COL', 'COO', 'COST', 'COTY', 'CPB', 'CRM', 'CSCO', 'CSRA',
+        'CSX', 'CTAS', 'CTL', 'CTSH', 'CTXS', 'CVS', 'CVX', 'CXO', 'D',
+        'DAL', 'DD', 'DE', 'DFS', 'DG', 'DGX', 'DHI', 'DHR', 'DIS',
+        'DISCA', 'DISCK', 'DLPH', 'DLR', 'DLTR', 'DNB', 'DOV', 'DPS',
+        'DRI', 'DUK', 'DVA', 'DVN', 'EA', 'EBAY', 'ECL', 'ED', 'EFX',
+        'EIX', 'EL', 'EMN', 'EMR', 'EOG', 'EQIX', 'EQR', 'EQT', 'ES',
+        'ESS', 'ETFC', 'ETN', 'ETR', 'EW', 'EXC', 'EXPD', 'EXPE', 'EXR',
+        'F', 'FAST', 'FB', 'FBHS', 'FCX', 'FDX', 'FE', 'FFIV', 'FIS',
+        'FISV', 'FL', 'FLIR', 'FLR', 'FLS', 'FMC', 'FRT', 'FSLR', 'FTR',
+            'GD', 'GGP', 'GILD', 'GIS', 'GLW', 'GM', 'GPC', 'GPN', 'GPS',
+        'GRMN', 'GT', 'GWW', 'HAL', 'HAR', 'HAS', 'HBAN', 'HBI', 'HCA',
+        'HCN', 'HCP', 'HD', 'HES', 'HIG', 'HOG', 'HOLX', 'HON', 'HP',
+        'HPE', 'HPQ', 'HRB', 'HRL', 'HRS', 'HSIC', 'HST', 'HSY', 'HUM',
+        'IBM', 'IDXX', 'IFF', 'ILMN', 'INTC', 'INTU', 'IP', 'IPG', 'IRM',
+        'ISRG', 'ITW', 'IVZ', 'JBHT', 'JEC', 'JNPR', 'JPM', 'JWN', 'K',
+        'KEY', 'KIM', 'KLAC', 'KMB', 'KMI', 'KMX', 'KO', 'KORS', 'KR',
+        'KSS', 'KSU', 'LB', 'LEG', 'LEN', 'LH', 'LKQ', 'LLL', 'LLTC',
+        'LLY', 'LMT', 'LNT', 'LOW', 'LRCX', 'LUK', 'LUV', 'LVLT', 'LYB',
+        'M', 'MA', 'MAA', 'MAC', 'MAR', 'MAS', 'MAT', 'MCD', 'MCHP', 'MCK',
+        'MCO', 'MDLZ', 'MET', 'MHK', 'MJN', 'MKC', 'MLM', 'MMC', 'MMM',
+        'MNST', 'MO', 'MON', 'MOS', 'MPC', 'MRK', 'MRO', 'MSFT', 'MTB',
+        'MTD', 'MU', 'MUR', 'MYL', 'NAVI', 'NBL', 'NDAQ', 'NEE', 'NEM',
+        'NFLX', 'NFX', 'NKE', 'NLSN', 'NOV', 'NSC', 'NTAP', 'NTRS', 'NUE',
+        'NVDA', 'NWL', 'NWS', 'NWSA', 'O', 'OKE', 'OMC', 'ORLY', 'OXY',
+        'PAYX', 'PBCT', 'PBI', 'PCAR', 'PCG', 'PCLN', 'PDCO', 'PEG', 'PEP',
+        'PFE', 'PFG', 'PG', 'PGR', 'PH', 'PHM', 'PKI', 'PM', 'PNC', 'PNR',
+        'PNW', 'PPG', 'PPL', 'PRU', 'PSX', 'PVH', 'PWR', 'PX', 'PYPL',
+        'QCOM', 'QRVO', 'R', 'RCL', 'REGN', 'RHI', 'RHT', 'RL', 'ROK',
+        'ROP', 'ROST', 'RRC', 'RSG', 'SBUX', 'SCG', 'SCHW', 'SE', 'SEE',
+        'SHW', 'SIG', 'SJM', 'SLG', 'SNA', 'SNI', 'SO', 'SPG', 'SPGI',
+        'SPLS', 'SRCL', 'SRE', 'STI', 'STT', 'STX', 'STZ', 'SWK', 'SWKS',
+        'SWN', 'SYF', 'SYK', 'SYMC', 'SYY', 'T', 'TAP', 'TDC', 'TDG',
+        'TEL', 'TGNA', 'TGT', 'TIF', 'TJX', 'TMK', 'TMO', 'TRIP', 'TRV',
+        'TSCO', 'TSN', 'TSO', 'TSS', 'TXN', 'TXT', 'UA', 'UAA', 'UAL',
+        'UDR', 'UHS', 'ULTA', 'UNH', 'UNM', 'UNP', 'UPS', 'URBN', 'USB',
+        'UTX', 'V', 'VAR', 'VFC', 'VIAB', 'VLO', 'VMC', 'VNO', 'VRSK',
+        'VRSN', 'VRTX', 'VTR', 'VZ', 'WAT', 'WDC', 'WEC', 'WFC', 'WFM',
+        'WHR', 'WLTW', 'WM', 'WMB', 'WMT', 'WRK', 'WU', 'WY', 'WYN',
+        'WYNN', 'XEC', 'XEL', 'XL', 'XLNX', 'XOM', 'XRAY', 'XRX', 'XYL',
+        'YHOO', 'YUM', 'ZBH', 'ZION', 'ZTS'] ;
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        ticker = request.form.get('ticker', '').strip().upper()
+        if not ticker:
+            # 没有ticker 就再来一遍
+            return render_template('index.html', message="Please enter a ticker value.")
 
-@app.route('/')
-def choose_language():
-    return render_template('language_yjl.html')
+        # 将 ticker 存入 stage
+        session['currentTicker'] = ticker
+
+        if ticker in tickerList:
+            # 找到则跳转到found
+            return redirect(url_for('found'))
+        else:
+            # 未找到则跳转到not_found
+            return redirect(url_for('not_found'))
+
+    # 如果是GET请求时直接返回index.html
+    return render_template('index.html')
+
+@app.route('/found')
+def found():
+    # 从session中取出当前的ticker
+    ticker = session.get('currentTicker', None)
+    return render_template('found.html', ticker=ticker)
+
+@app.route('/not_found')
+def not_found():
+    # 从session中取出当前的ticker
+    ticker = session.get('currentTicker', None)
+    return render_template('not_found.html', ticker=ticker)
+
+
 
 @app.route('/zh',methods=["POST","GET"]) #简体中文
 def zh_index():
@@ -154,7 +236,7 @@ def company():
                 result = re.split(r'(<th>)', result_data)
                 indices = [index for index, value in enumerate(result) if value == '<th>']
                 original = [result[indices[i] + 1].split('</th>')[0] for i in range(len(indices))]
-                list = [result[indices[i] + 1].split('</th>')[0] for i in range(6,len(indices))]
+                list1 = [result[indices[i] + 1].split('</th>')[0] for i in range(6,len(indices))]
                 trans_map = {
                                 "Treasury Shares Number": "库存股数",
                                 "Ordinary Shares Number": "普通股数",
@@ -225,7 +307,7 @@ def company():
                                 "Cash Equivalents": "现金等价物",
                                 "Cash Financial": "现金财务"
                             }
-                trans_list = [trans_map.get(i, i) for i in list]
+                trans_list = [trans_map.get(i, i) for i in list1]
                 trans= original[:6]+trans_list
                 for i, index in enumerate(indices):
                     result[index + 1] = result[index + 1].replace(original[i], trans[i])
@@ -234,7 +316,7 @@ def company():
                 result = re.split(r'(<th>)', result_data)
                 indices = [index for index, value in enumerate(result) if value == '<th>']
                 original = [result[indices[i] + 1].split('</th>')[0] for i in range(len(indices))]
-                list = [result[indices[i] + 1].split('</th>')[0] for i in range(6,len(indices))]
+                list1 = [result[indices[i] + 1].split('</th>')[0] for i in range(6,len(indices))]
                 trans_map = {
                 'Tax Effect Of Unusual Items': '异常项目的税务影响',
                 'Tax Rate For Calcs': '计算用税率',
@@ -276,7 +358,7 @@ def company():
                 'Total Revenue': '总收入',
                 'Operating Revenue': '营业收入'
             }
-                trans_list = [trans_map.get(i, i) for i in list]
+                trans_list = [trans_map.get(i, i) for i in list1]
                 trans= original[:6]+trans_list
                 for i, index in enumerate(indices):
                     result[index + 1] = result[index + 1].replace(original[i], trans[i])
@@ -285,7 +367,7 @@ def company():
                 result = re.split(r'(<th>)', result_data)
                 indices = [index for index, value in enumerate(result) if value == '<th>']
                 original = [result[indices[i] + 1].split('</th>')[0] for i in range(len(indices))]
-                list = [result[indices[i] + 1].split('</th>')[0] for i in range(6,len(indices))]
+                list1 = [result[indices[i] + 1].split('</th>')[0] for i in range(6,len(indices))]
                 trans_map = {
                     'Free Cash Flow': '自由现金流',
                     'Repurchase Of Capital Stock': '资本股票回购',
@@ -341,7 +423,7 @@ def company():
                     'Depreciation And Amortization': '折旧与摊销',
                     'Net Income From Continuing Operations': '来自持续经营的净收入'
                 }
-                trans_list = [trans_map.get(i, i) for i in list]
+                trans_list = [trans_map.get(i, i) for i in list1]
                 trans= original[:6]+trans_list
                 for i, index in enumerate(indices):
                     result[index + 1] = result[index + 1].replace(original[i], trans[i])
