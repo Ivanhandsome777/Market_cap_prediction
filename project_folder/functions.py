@@ -1006,9 +1006,16 @@ def mannual_data_keyin():
     # df_raw.drop(["Ticker"],axis=1,inplace=True)
     rf_loaded = joblib.load('./random_forest_model_evaluation.joblib')
     y_predict = rf_loaded.predict(df_raw)
-
-    return y_predict
-    
+    if 0<=y_predict<=1e8:
+        return 0
+    elif 1e8< y_predict<=1e9:
+        return 1
+    elif 1e9< y_predict<=3e9:
+        return 2
+    elif 3e9< y_predict<=5e9:
+        return 3
+    elif 5e9< y_predict<=1e10:
+        return 4
 
 
 def menu_function5(company):
@@ -1243,27 +1250,27 @@ def chat_with_gpt():
         print the response from chat-gpt
 
     '''
-    client = OpenAI(
-    api_key="API-KEY",
-    )
-    conversation = [{"role": "system", "content": "You are a helpful assistant."}]
-    while True:
-        try:
-            user_input = input("you:")
-            conversation.append({"role": "user", "content": user_input})
-            chat_completion = client.chat.completions.create(
-                messages=conversation,
-                model="gpt-4o-mini",
-                        )
-            print("You:", user_input)
-            assistant_reply = chat_completion.choices[0].message.content
-            conversation.append({"role": "assistant", "content": assistant_reply})
-            print("ChatGPT: ", assistant_reply)
-            print("\n")
-            print("\n")
+    # client = OpenAI(
+    # api_key="API-KEY",
+    # )
+    # conversation = [{"role": "system", "content": "You are a helpful assistant."}]
+    # while True:
+    #     try:
+    #         user_input = input("you:")
+    #         conversation.append({"role": "user", "content": user_input})
+    #         chat_completion = client.chat.completions.create(
+    #             messages=conversation,
+    #             model="gpt-4o-mini",
+    #                     )
+    #         print("You:", user_input)
+    #         assistant_reply = chat_completion.choices[0].message.content
+    #         conversation.append({"role": "assistant", "content": assistant_reply})
+    #         print("ChatGPT: ", assistant_reply)
+    #         print("\n")
+    #         print("\n")
 
-        except TimeoutError:
-            print("error")
+    #     except TimeoutError:
+    #         print("error")
 
 
 
