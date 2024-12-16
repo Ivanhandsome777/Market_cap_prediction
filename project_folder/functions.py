@@ -1250,27 +1250,27 @@ def chat_with_gpt():
         print the response from chat-gpt
 
     '''
-    client = OpenAI(
-    api_key="API-KEY",
-    )
-    conversation = [{"role": "system", "content": "You are a helpful assistant."}]
-    while True:
-        try:
-            user_input = input("you:")
-            conversation.append({"role": "user", "content": user_input})
-            chat_completion = client.chat.completions.create(
-                messages=conversation,
-                model="gpt-4o-mini",
-                        )
-            print("You:", user_input)
-            assistant_reply = chat_completion.choices[0].message.content
-            conversation.append({"role": "assistant", "content": assistant_reply})
-            print("ChatGPT: ", assistant_reply)
-            print("\n")
-            print("\n")
+    # client = OpenAI(
+    # api_key="API-KEY",
+    # )
+    # conversation = [{"role": "system", "content": "You are a helpful assistant."}]
+    # while True:
+    #     try:
+    #         user_input = input("you:")
+    #         conversation.append({"role": "user", "content": user_input})
+    #         chat_completion = client.chat.completions.create(
+    #             messages=conversation,
+    #             model="gpt-4o-mini",
+    #                     )
+    #         print("You:", user_input)
+    #         assistant_reply = chat_completion.choices[0].message.content
+    #         conversation.append({"role": "assistant", "content": assistant_reply})
+    #         print("ChatGPT: ", assistant_reply)
+    #         print("\n")
+    #         print("\n")
 
-        except TimeoutError:
-            print("error")
+    #     except TimeoutError:
+    #         print("error")
 
 
 
