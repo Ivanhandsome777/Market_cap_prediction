@@ -1,0 +1,22 @@
+Ticker
+Year
+Beta
+Current Assets
+Cash And Cash Equivalents
+Current Liabilities
+Total Liabilities Net Minority Interest
+Depreciation And Amortization
+Capital Expenditure
+Net Income
+Interest Expense
+Tax Rate For Calcs
+country
+industry
+fullTimeEmployees
+CPI
+PPI
+Unemployment Rate
+Federal Funds Rate
+Inflation Rate
+Overnight Lending Rate
+10 Year Treasury Rate
