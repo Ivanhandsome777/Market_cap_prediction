@@ -102,7 +102,59 @@ def found():
 def not_found():
     # 从session中取出当前的ticker
     ticker = session.get('currentTicker', None)
-    return render_template('not_found.html', ticker=ticker)
+
+    if request.method == 'POST':
+        # 获取用户提交的数据
+        form_data = request.form.to_dict()
+
+        # 检查是否选择了模型
+        model_selection = form_data.get('model_num', '')
+        if not model_selection:
+            flash("Please select a model.")
+            return redirect(url_for('not_found'))
+        
+        # 检查所有必填字段是否填写
+        required_fields = variables_list - ['Ticker']
+        missing_fields = [field for field in required_fields if not form_data.get(field)]
+        if missing_fields:
+            flash("Please fill out all required fields.")
+            return redirect(url_for('not_found'))
+
+        # 处理用户提交的参数（可选字段）
+        growth_rate = form_data.get('growth_rate', None)  # 参数可能为空
+        discount_rate = form_data.get('discount_rate', None)  # 参数可能为空
+        terminal_growth_rate = form_data.get('terminal_growth_rate', None)  # 参数可能为空
+
+        ordered_data = {key: form_data[key] for key in variables_list}
+        user_input_df = pd.DataFrame([ordered_data])
+
+        # 将所有数据存储到 session 中
+        session['model_selection'] = model_selection
+        session['growth_rate'] = growth_rate #expected growth rate
+        session['discount_rate'] = discount_rate #discount rate
+        session['terminal_growth_rate'] = terminal_growth_rate #expected terminal growth rate
+        session['userInput'] = user_input_df.to_dict(orient='list')  
+
+        # 跳转到结果页面
+        return redirect(url_for('results'))
+    
+
+    return render_template('not_found.html', ticker=ticker,
+                           variables=variables_list,
+                           industries=industry_list,
+                           countries=country_list)
+
+@app.route('/results for not found')
+def results_not_found():
+
+    # 获取用户输入的数据和当前的 ticker
+    ticker = session.get('currentTicker', None)
+    user_input_data = session.get('userInput', None)
+
+    # 将数据恢复为 DataFrame 格式
+    user_input_df = pd.DataFrame(user_input_data)
+
+    return render_template('results_not_found.html', ticker=ticker)
 
 
 @app.route('/found/company', methods=['POST'])
@@ -469,6 +521,7 @@ def company_en():
 
 
 
+
 # @app.route('/zh/financial_statements', methods=['GET', 'POST'])
 # def financial_statements():
 #     if request.method == 'POST':
@@ -485,7 +538,34 @@ def company_en():
 
 
 
+# 对于不存在的ticker，model选择和变量输入如下
+
+# 读取变量列表、行业列表和国家列表
+def read_txt(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return [line.strip() for line in file.readlines()]
+
+# 文件路径
+variables_file = '../data/X_list_regression.txt'
+industry_file = '../data/industry_list.txt'
+country_file = '../data/country_list.txt'
+
+# 读取文件内容
+variables_list = read_txt(variables_file)  
+industry_list = read_txt(industry_file)    
+country_list = read_txt(country_file)      
+
+
+@app.route('/model selection', methods=['POST'])
+def model_selection():
+    model_num = request.form.get('model_num')
+    return render_template('results.html', model_num=model_num) #请视情况修改
 
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+
