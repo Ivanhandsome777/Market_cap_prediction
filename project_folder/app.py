@@ -69,8 +69,13 @@ tickerList = ['AAL', 'AAP', 'AAPL', 'ABBV', 'ABC', 'ABT', 'ADBE', 'ADI', 'ADM',
         'WHR', 'WLTW', 'WM', 'WMB', 'WMT', 'WRK', 'WU', 'WY', 'WYN',
         'WYNN', 'XEC', 'XEL', 'XL', 'XLNX', 'XOM', 'XRAY', 'XRX', 'XYL',
         'YHOO', 'YUM', 'ZBH', 'ZION', 'ZTS'] ;
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    """
+    locate to main site, get user's input about ticker and detect if the tiker is existed or not
+    """
     if request.method == 'POST':
         ticker = request.form.get('ticker', '').strip().upper()
         if not ticker:
@@ -90,11 +95,63 @@ def index():
     # 如果是GET请求时直接返回index.html
     return render_template('index.html')
 
+
+# found
 @app.route('/found')
 def found():
-    # 从session中取出当前的ticker
+    """
+    if found, relocate to /found address
+    """
     ticker = session.get('currentTicker', None)
     return render_template('found.html', ticker=ticker)
+
+
+
+@app.route('/found/company', methods=['POST'])
+def company_en():
+    """
+    result page for /found
+    """
+    try:
+
+        company_name = session.get('currentTicker', None)
+        function_num = int(request.form['function_num'])
+        
+        # 根据不同的功能号调用相应函数并返回结果
+        if function_num == 1:
+            result_data = company_profile(company_name)
+            result_type = 'simple'  # 简单字典
+            
+        elif function_num == 2:
+            result_data = get_financial_numbers(company_name)
+            result_type = 'nested'  # 嵌套字典
+            
+        elif function_num == 3:
+            statement_choice = int(request.form['statement_choice'])
+            result_data = get_financial_statements(company_name, statement_choice)
+            result_type = 'html_table'  # HTML 表格
+
+        elif function_num == 4:
+            visualization_choice = int(request.form['visualization_choice'])
+            buffer = plot_data_web_sns(company_name, visualization_choice)
+            # buffer = plot_income_data_web(company_name)
+            img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+            # Pass the base64 string to the template
+            return render_template('ploten.html', image_data=img_base64, company_name=company_name)
+        
+        elif function_num == 6:
+            ranking_info = ranking(company_name)
+            result_data = ranking_info.to_html(classes="table table-striped", index=True)
+            result_type = "ranking" 
+
+        else:
+            return "无效的功能编号"
+        
+        return render_template('result.html', company=company_name, result_data=result_data, result_type=result_type)
+
+    except Exception as e:
+        return render_template('error.html', error_message=str(e))
 
 
 
@@ -144,7 +201,8 @@ def not_found():
                            industries=industry_list,
                            countries=country_list)
 
-@app.route('/results for not found')
+
+@app.route('/not_found/result')
 def results_not_found():
 
     # 获取用户输入的数据和当前的 ticker
@@ -157,48 +215,7 @@ def results_not_found():
     return render_template('results_not_found.html', ticker=ticker)
 
 
-@app.route('/found/company', methods=['POST'])
-def company_en():
-    try:
 
-        company_name = request.form['company_name']
-        function_num = int(request.form['function_num'])
-        
-        # 根据不同的功能号调用相应函数并返回结果
-        if function_num == 1:
-            result_data = company_profile(company_name)
-            result_type = 'simple'  # 简单字典
-            
-        elif function_num == 2:
-            result_data = get_financial_numbers(company_name)
-            result_type = 'nested'  # 嵌套字典
-            
-        elif function_num == 3:
-            statement_choice = int(request.form['statement_choice'])
-            result_data = get_financial_statements(company_name, statement_choice)
-            result_type = 'html_table'  # HTML 表格
-
-        elif function_num == 4:
-            visualization_choice = int(request.form['visualization_choice'])
-            buffer = plot_data_web_sns(company_name, visualization_choice)
-            # buffer = plot_income_data_web(company_name)
-            img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-
-            # Pass the base64 string to the template
-            return render_template('ploten.html', image_data=img_base64, company_name=company_name)
-        
-        elif function_num == 6:
-            ranking_info = ranking(company_name)
-            result_data = ranking_info.to_html(classes="table table-striped", index=True)
-            result_type = "ranking" 
-
-        else:
-            return "无效的功能编号"
-        
-        return render_template('result.html', company=company_name, result_data=result_data, result_type=result_type)
-
-    except Exception as e:
-        return render_template('error.html', error_message=str(e))
 
 
 
