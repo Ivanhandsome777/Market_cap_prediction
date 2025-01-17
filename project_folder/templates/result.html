@@ -49,8 +49,31 @@
         {{ result_data | safe }}
         
     {% elif result_type == 'ranking' %}
-        {{ result_data | safe}}
+        {{ result_data | safe }}
+
+    {% elif result_type == 'dcf_model' %}
+        <h2>DCF Evaluation Result for {{company}}</h2>
+        <table class="table table-bordered">
+            <tr><th>model</th><th>company</th></tr>
+            <tr><th>DCF Model</th><th>{{result_data}}</th></tr>
+        </table>
+    {% elif result_type == 'ml_model' %}
+        <h2>Random Forest Evaluation for {{company}}</h2>
+        <table class="table table-bordered">
+            <tr><th>model</th><th>company</th></tr>
+            <tr><th>Random Forest</th><th>{{result_data}}</th></tr>
+        </table>
     
+    {% elif result_type == 'both_model' %}
+        <h2>DCF and ML model evaluation for {{company}}</h2>
+        <table class="table table-bordered">
+            <tr><th>model</th><th>company</th></tr>
+            <tr><th>DCF Model</th><th>{{result_data[0]}}</th></tr>
+            <tr><th>Random Forest</th><th>{{result_data[1]}}</th></tr>
+        </table>         
+    {% elif result_type == 'no_model' %}
+        <h2>Please selece a model</h2>
+     
     {% else %}
         <p>Error!</p>
     {% endif %}

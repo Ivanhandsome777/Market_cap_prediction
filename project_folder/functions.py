@@ -1169,7 +1169,7 @@ def calculate_fcf_valuation(ticker):
 # calculate_fcf_valuation(ticker)
 
 
-def dcf_model(ticker):
+def dcf_model(ticker,growth_rate,discount_rate,terminal_growth_rate,fcf_default):
     # 获取财务数据
     stock = yf.Ticker(ticker)
     
@@ -1200,11 +1200,7 @@ def dcf_model(ticker):
     # 输入用户提供的其他数据
     if fcf is None:
         print("无法获取自由现金流，请手动输入：")
-        fcf = float(input("输入未来5年的自由现金流（以第1年为基准）: "))
-
-    growth_rate = float(input("输入预计的年增长率（例如：0.05表示5%）："))
-    discount_rate = float(input("输入折现率（例如：0.1表示10%）："))
-    terminal_growth_rate = float(input("输入终值增长率（例如：0.02表示2%）："))
+        fcf = fcf_default
 
     # 计算未来现金流（假设5年）
     cash_flows = [(fcf * ((1 + growth_rate) ** i)) for i in range(1, 6)]
@@ -1280,15 +1276,13 @@ def find_data(Ticker):
 
     """
     try:
-        df_standardized = pd.read_csv("./data/data_preprocessed.csv", index_col="Ticker")
+        df_standardized = pd.read_csv("../data/data_preprocessed.csv", index_col="Ticker")
         result = df_standardized.loc[Ticker]
-        result = pd.DataFrame(result).T
+        result = pd.DataFrame(result)
         return result
     except KeyError:
         return f"Ticker '{Ticker}' not found in the DataFrame."
     
-
-
 
 def regression_prediction(input_data):
     """
@@ -1309,8 +1303,6 @@ def regression_prediction(input_data):
         return prediction
     except:
         return f"error"
-
-
 
 
 def predict_inlist(Ticker):
@@ -1335,3 +1327,7 @@ def predict_inlist(Ticker):
 
 
 
+# 读取变量列表、行业列表和国家列表
+def read_txt(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return [line.strip() for line in file.readlines()]

@@ -37,6 +37,7 @@
                     <div id="evaluation_choice" class="mb-3" style="display: none;">
                         <label for="evaluation_choice" class="form-label">Select Valuation Model:</label>
                         <select name="evaluation_choice" class="form-select">
+                            <option value="0">Please select a model</option>
                             <option value="1">Traditional Valuation Model</option>
                             <option value="2">Machine Learning Valuation Model</option>
                             <option value="3">Traditional and Machine Learning Valuation Models</option>
@@ -62,19 +63,43 @@
             </div>
         </div>
     </div>
-
+    
+    <div id="input_fields" class="mb-3" style="display: none;">
+        <div class="row mb-3">           
+            <div class="col-md-4">
+                <label for="x1" class="form-label">growth rate:</label>
+                <input type="number" id="x1" name="x1" class="form-control" placeholder="Enter X1">
+            </div>
+            <div class="col-md-4">
+                <label for="x2" class="form-label">discount rate:</label>
+                <input type="number" id="x2" name="x2" class="form-control" placeholder="Enter X2">
+            </div>
+            <div class="col-md-4">
+                <label for="x3" class="form-label">terminal growth rate:</label>
+                <input type="number" id="x3" name="x3" class="form-control" placeholder="Enter X3">
+            </div>
+            <div class="col-md-4">
+                <label for="x4" class="form-label">fcf of 5 years:</label>
+                <input type="number" id="x4" name="x4" class="form-control" placeholder="Enter X4">
+            </div>
+        </div>
+    </div>
+    
 
     <script>
     function toggleChoices() {
         var functionNum = document.getElementById("function_num").value;
+        var evaluationModel = document.querySelector('[name="evaluation_choice"]');
         var statementChoiceDiv = document.getElementById("statement_choice");
         var evaluationChoiceDiv = document.getElementById("evaluation_choice");
         var visualizationChoiceDiv = document.getElementById("visualization_choice");
+        var inputFieldsDiv = document.getElementById("input_fields");
     
         // Reset visibility for all sections
         statementChoiceDiv.style.display = "none";
         evaluationChoiceDiv.style.display = "none";
         visualizationChoiceDiv.style.display = "none";
+        inputFieldsDiv.style.display = "none";
     
         // Show specific section based on the selected option
         if (functionNum == "3") {
@@ -83,9 +108,22 @@
             visualizationChoiceDiv.style.display = "block";
         } else if (functionNum == "7") {
             evaluationChoiceDiv.style.display = "block";
+    
+            // Add event listener to the evaluation model dropdown
+            evaluationModel.addEventListener("change", function () {
+                if (this.value == "1" | this.value == "3") {
+                    inputFieldsDiv.style.display = "block"; // Show input fields for Traditional Valuation Model
+                } else {
+                    inputFieldsDiv.style.display = "none"; // Hide input fields for other models
+                }
+            });
         }
     }
     </script>
+    
+    <a href="/">Return</a>
+</body>
+</html>    
 
 <!-- 
     <script>
@@ -121,5 +159,3 @@
             }
         }
     </script> -->
-</body>
-</html>
